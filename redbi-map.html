@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RedBI 数据资产地图</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, "PingFang SC", sans-serif; background: #f5f5f7; color: #1d1d1f; }
+
+header { background: linear-gradient(135deg, #ff2d55, #ff6b35); color: white; padding: 24px 32px 20px; }
+header h1 { font-size: 22px; font-weight: 700; }
+header p { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+.badge-update { margin-top: 8px; font-size: 11px; background: rgba(255,255,255,0.2); display: inline-block; padding: 2px 10px; border-radius: 20px; }
+
+/* Tab 导航 */
+.tab-nav { display: flex; background: white; border-bottom: 1px solid #e8e8e8; padding: 0 32px; gap: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.tab-btn { padding: 14px 20px; font-size: 13px; font-weight: 600; color: #86868b; border: none; background: none; cursor: pointer; border-bottom: 2.5px solid transparent; margin-bottom: -1px; transition: all 0.15s; white-space: nowrap; }
+.tab-btn:hover { color: #ff2d55; }
+.tab-btn.active { color: #ff2d55; border-bottom-color: #ff2d55; }
+
+/* Tab 内容 */
+.tab-panel { display: none; padding: 24px 32px 60px; max-width: 1100px; margin: 0 auto; }
+.tab-panel.active { display: block; }
+
+/* 搜索 */
+.search-wrap { margin-bottom: 20px; }
+.search-wrap input { width: 100%; padding: 11px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 13px; background: white; outline: none; }
+.search-wrap input:focus { border-color: #ff2d55; }
+
+/* 卡片网格 */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.card { background: white; border-radius: 14px; padding: 18px; border: 1.5px solid transparent; transition: all 0.18s; }
+.card:hover { border-color: #ff2d55; box-shadow: 0 4px 16px rgba(255,45,85,0.1); transform: translateY(-2px); }
+.card.hidden { display: none; }
+.card-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+.card-icon { font-size: 22px; flex-shrink: 0; }
+.card-title { font-size: 14px; font-weight: 700; line-height: 1.3; }
+.card-desc { font-size: 12px; color: #86868b; margin-top: 2px; line-height: 1.5; }
+.card-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #ff2d55; text-decoration: none; background: #fff0f3; padding: 4px 10px; border-radius: 7px; margin-bottom: 10px; transition: background 0.15s; }
+.card-link:hover { background: #ffe0e8; }
+.fields-label { font-size: 10px; font-weight: 700; color: #86868b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { font-size: 11px; padding: 2px 7px; border-radius: 5px; background: #f0f0f0; color: #3a3a3c; }
+.tag.has { background: #e8f5e9; color: #2e7d32; }
+.tag.no { background: #fce4ec; color: #c62828; }
+
+/* 表格 */
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+th { background: #f5f5f7; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 11px; color: #86868b; text-transform: uppercase; letter-spacing: 0.4px; }
+td { padding: 10px 14px; border-top: 1px solid #f0f0f0; vertical-align: top; line-height: 1.5; }
+tr:hover td { background: #fafafa; }
+code { font-family: "SF Mono", monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+.tip-badge { font-size: 11px; color: #ff9500; background: #fff8e1; padding: 2px 7px; border-radius: 5px; }
+a { color: #ff2d55; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* 规则卡片 */
+.rule-card { background: white; border-radius: 12px; padding: 16px 18px; border-left: 4px solid #ff2d55; margin-bottom: 12px; }
+.rule-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+.rule-card p { font-size: 12px; color: #3a3a3c; line-height: 1.6; }
+.rule-card .hl { color: #ff2d55; font-weight: 600; }
+
+/* Section 标题 */
+.sec { font-size: 16px; font-weight: 700; margin: 24px 0 12px; display: flex; align-items: center; gap: 8px; }
+.sec .cnt { font-size: 11px; font-weight: 600; background: #ff2d55; color: white; padding: 2px 7px; border-radius: 9px; }
+
+/* 积累表格特殊样式 */
+.accum-th { background: #ff2d55 !important; color: white !important; }
+
+/* 空提示 */
+.empty-tip { text-align: center; padding: 32px; color: #86868b; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 RedBI 数据资产地图</h1>
+  <p>香菜的取数入口 · 看板 · 字段规则 · 图表积累</p>
+  <div class="badge-update" id="lastUpdate">最后更新：—</div>
+</header>
+
+<!-- Tab 导航 -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('datasets')">📦 数据集</button>
+  <button class="tab-btn" onclick="switchTab('weekly')">📋 周报看板</button>
+  <button class="tab-btn" onclick="switchTab('accumulated')">🗂️ 图表积累</button>
+  <button class="tab-btn" onclick="switchTab('rules')">⚙️ 字段规则</button>
+</div>
+
+<!-- Tab 1：数据集 -->
+<div class="tab-panel active" id="tab-datasets">
+  <div class="search-wrap">
+    <input type="text" id="dsSearch" placeholder="🔍 搜索看板名、字段…" oninput="filterDatasets()">
+  </div>
+  <div class="grid" id="datasetGrid"><!-- 动态渲染 --></div>
+</div>
+
+<!-- Tab 2：周报看板 -->
+<div class="tab-panel" id="tab-weekly">
+  <div class="sec">运营周报专用看板 <span class="cnt">固定勿混淆</span></div>
+  <table id="weeklyTable">
+    <thead><tr><th>名称</th><th>IDs</th><th>字段说明</th><th>链接</th></tr></thead>
+    <tbody><!-- 动态渲染 --></tbody>
+  </table>
+
+  <div class="sec">客资看板 Tab 索引</div>
+  <table id="clientsTable">
+    <thead><tr><th>Tab内容</th><th>dashboardId</th><th>pageId</th><th>直达</th></tr></thead>
+    <tbody><!-- 动态渲染 --></tbody>
+  </table>
+</div>
+
+<!-- Tab 3：图表积累 -->
+<div class="tab-panel" id="tab-accumulated">
+  <div class="sec">香菜常用图表积累 <span class="cnt">持续更新</span></div>
+  <p style="font-size:12px;color:#86868b;margin-bottom:14px;">📌 每次取数后 Atticus 自动追加。更新只改 <code>redbi-data.json</code>，不动 HTML。</p>
+  <table id="accumTable">
+    <thead><tr class="accum-th"><th>业务场景</th><th>analysisId / shortcutId</th><th>可用字段</th><th>首次使用</th></tr></thead>
+    <tbody><!-- 动态渲染 --></tbody>
+  </table>
+</div>
+
+<!-- Tab 4：字段规则 -->
+<div class="tab-panel" id="tab-rules">
+  <div class="sec">🔑 字段ID映射</div>
+  <table id="fieldTable">
+    <thead><tr><th>用户说的</th><th>底表字段名</th><th>RedBI中文名</th><th>含义</th></tr></thead>
+    <tbody><!-- 动态渲染 --></tbody>
+  </table>
+
+  <div class="sec">⚠️ 操作规则</div>
+  <div id="rulesContainer"><!-- 动态渲染 --></div>
+</div>
+
+<script>
+let DATA = null;
+
+// 加载 JSON
+async function loadData() {
+  try {
+    const r = await fetch('redbi-data.json?t=' + Date.now());
+    DATA = await r.json();
+    render();
+  } catch(e) {
+    document.body.innerHTML += '<div style="text-align:center;padding:40px;color:red;">❌ 无法加载 redbi-data.json：' + e.message + '</div>';
+  }
+}
+
+function render() {
+  document.getElementById('lastUpdate').textContent = '最后更新：' + DATA.meta.lastUpdate;
+
+  // Tab1 数据集
+  const grid = document.getElementById('datasetGrid');
+  grid.innerHTML = DATA.datasets.map(d => `
+    <div class="card" data-kw="${d.name} ${d.desc} ${[...d.fields.has,...d.fields.no].join(' ')}">
+      <div class="card-head">
+        <div class="card-icon">${d.icon}</div>
+        <div>
+          <div class="card-title">③${d.id > 0 ? '&nbsp;' : ''}${d.name}</div>
+          <div class="card-desc">${d.desc}</div>
+        </div>
+      </div>
+      <a class="card-link" href="${d.url}" target="_blank">🔗 ${d.analysisId}</a>
+      ${d.fields.has.length || d.fields.no.length ? `
+      <div class="fields-label">字段覆盖</div>
+      <div class="tags">
+        ${d.fields.has.map(f => `<span class="tag has">${f}</span>`).join('')}
+        ${d.fields.no.map(f => `<span class="tag no">❌ ${f}</span>`).join('')}
+      </div>` : '<div class="fields-label" style="color:#ccc">字段待补充</div>'}
+    </div>
+  `).join('').replace(/③\d+&nbsp;/g, '');
+
+  // 修正卡片序号 icon
+  document.querySelectorAll('#datasetGrid .card').forEach((el, i) => {
+    el.querySelector('.card-title').textContent = DATA.datasets[i].name;
+  });
+
+  // Tab2 周报
+  document.querySelector('#weeklyTable tbody').innerHTML = DATA.weeklyReports.map(w => `
+    <tr>
+      <td><strong>${w.name}</strong></td>
+      <td><code>${w.ids}</code></td>
+      <td style="font-size:12px;color:#86868b;">${w.note}</td>
+      <td><a href="${w.url}" target="_blank">打开 →</a></td>
+    </tr>
+  `).join('');
+
+  document.querySelector('#clientsTable tbody').innerHTML = DATA.clientsTabs.map(c => `
+    <tr>
+      <td>${c.name}</td>
+      <td><code>${c.dashboardId}</code></td>
+      <td><code>${c.pageId}</code></td>
+      <td><a href="${c.url}" target="_blank">打开 →</a></td>
+    </tr>
+  `).join('');
+
+  // Tab3 积累
+  const tbody = document.querySelector('#accumTable tbody');
+  if (DATA.accumulated.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-tip">暂无积累，取数后自动追加</td></tr>';
+  } else {
+    tbody.innerHTML = DATA.accumulated.map(a => `
+      <tr>
+        <td>${a.scene}</td>
+        <td><a href="${a.url}" target="_blank">${a.ids}</a></td>
+        <td style="font-size:12px;">${a.fields}</td>
+        <td style="color:#86868b;font-size:12px;">${a.date}</td>
+      </tr>
+    `).join('');
+  }
+
+  // Tab4 字段规则
+  document.querySelector('#fieldTable tbody').innerHTML = DATA.fieldRules.map(f => `
+    <tr>
+      <td>${f.label}</td>
+      <td><code>${f.field}</code></td>
+      <td>${f.cnName}</td>
+      <td>${f.desc} ${f.tip ? `<span class="tip-badge">${f.tip}</span>` : ''}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('rulesContainer').innerHTML = DATA.rules.map(r => `
+    <div class="rule-card">
+      <h4>${r.title}</h4>
+      <p>${r.desc.replace(/香菜/g, '<span class="hl">香菜</span>').replace(/Atticus/g, '<span class="hl">Atticus</span>')}</p>
+    </div>
+  `).join('');
+}
+
+// Tab 切换
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// 数据集搜索
+function filterDatasets() {
+  const q = document.getElementById('dsSearch').value.toLowerCase();
+  document.querySelectorAll('#datasetGrid .card').forEach(el => {
+    const kw = el.dataset.kw.toLowerCase();
+    el.classList.toggle('hidden', q.length > 0 && !kw.includes(q));
+  });
+}
+
+loadData();
+</script>
+</body>
+</html>

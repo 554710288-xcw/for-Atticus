@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "lastUpdate": "2026-04-03",
+    "version": "1.0"
+  },
+  "fieldRules": [
+    {
+      "label": "子账户ID / 投放账户",
+      "field": "advertiser_id",
+      "cnName": "投放账户id",
+      "desc": "实际投放层",
+      "tip": "✅ 筛单账户用这个"
+    },
+    {
+      "label": "广告主ID / 主账户",
+      "field": "brand_account_id",
+      "cnName": "广告主ID",
+      "desc": "品牌主账户，一个品牌下可有多个子账户",
+      "tip": ""
+    }
+  ],
+  "rules": [
+    {
+      "title": "shortcutId 是个人视图，不可跨账户复用",
+      "desc": "取数时只用香菜提供的链接，不用记忆里的shortcutId。如果香菜给了广告主ID/子账户ID，直接加筛选，不依赖shortcutId。"
+    },
+    {
+      "title": "积累规则（写死）",
+      "desc": "每次香菜发链接取数完毕，立刻把「业务场景 → analysisId+shortcutId + 可用字段」存入 redbi-data.json 的 accumulated 数组，不等香菜说。"
+    }
+  ],
+  "datasets": [
+    {
+      "id": 1,
+      "icon": "⭐",
+      "name": "创意宽表（最常用）",
+      "desc": "看赛道/看客户/看复盘，基本都用这个。359字段。",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=44335900&projectId=4&shortcutId=14807756",
+      "analysisId": "44335900",
+      "fields": {
+        "has": ["竞价运营消耗", "私信留资成本", "私信开口成本", "目标转化成本", "实际转化成本", "竞价广告CTR", "5s完播率", "Brandtag", "推广优化目标", "广告主ID/名称", "投放账户id", "赛道明细", "商业笔记类型(KFS/BFS/KOS)", "VS上期(环比)"],
+        "no": []
+      }
+    },
+    {
+      "id": 2,
+      "icon": "🎯",
+      "name": "客资自助分析",
+      "desc": "客资产品使用：深转/自动化/简单投/加速包/线索直播投广。",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=44378230&shortcutId=14835694&projectId=4",
+      "analysisId": "44378230",
+      "fields": {
+        "has": ["升维生效流水", "升维消耗渗透", "cost/advv", "加速包消耗渗透率", "日均加速包消耗", "简单投流水渗透", "部门4级名称", "直客销售"],
+        "no": []
+      }
+    },
+    {
+      "id": 3,
+      "icon": "📺",
+      "name": "线索直播（自然+投广）",
+      "desc": "开播人数/次数/时长、观播、留资、投广流水。",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?projectId=4&analysisId=44579132",
+      "analysisId": "44579132",
+      "fields": {
+        "has": ["开播次数", "直播观看PV", "直播间留资量", "直播间留资成本", "直播运营流水", "cost/advv", "5s观播uv占比"],
+        "no": ["广告主ID（维度不支持）"]
+      }
+    },
+    {
+      "id": 4,
+      "icon": "🔍",
+      "name": "搜索词效果明细",
+      "desc": "客户买词明细、行业飙升词、PVR填充率。",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?projectId=4&analysisId=44579345",
+      "analysisId": "44579345",
+      "fields": {
+        "has": ["搜索词", "有效搜索量", "PVR", "CPM1", "竞价搜索运营消耗", "BrandTag", "广告主名称"],
+        "no": []
+      }
+    },
+    {
+      "id": 5,
+      "icon": "🏆",
+      "name": "搜索SOV/SOC竞争",
+      "desc": "看搜索竞争份额、品牌词占比。",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?projectId=4&analysisId=44579602",
+      "analysisId": "44579602",
+      "fields": {
+        "has": ["BT-SOV", "BT-SOC", "首屏广告SOV", "转化率", "BrandTag", "搜索词"],
+        "no": []
+      }
+    },
+    {
+      "id": 6,
+      "icon": "📝",
+      "name": "搜索词下笔记明细",
+      "desc": "看搜索词下挂载的笔记明细。",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?projectId=4&analysisId=12818014",
+      "analysisId": "12818014",
+      "fields": { "has": [], "no": [] }
+    },
+    {
+      "id": 7,
+      "icon": "📈",
+      "name": "搜索赛道用户搜索量趋势",
+      "desc": "看搜索赛道下用户搜索量趋势。",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?projectId=4&analysisId=2303516&shortcutId=14534063",
+      "analysisId": "2303516",
+      "fields": { "has": [], "no": [] }
+    },
+    {
+      "id": 8,
+      "icon": "🔬",
+      "name": "竞价广告复盘看板",
+      "desc": "全局复盘：总览趋势、账户/计划下钻、链路出价成本、场域流量分布、笔记类型。",
+      "url": "https://redbi.devops.xiaohongshu.com/dashboard/list?projectId=4&dashboardId=14330&pageId=page_J2Tgdf0qqC_18434",
+      "analysisId": "dashboardId=14330",
+      "fields": {
+        "has": ["日均竞价流水", "在投计划数", "CTR/5s完播率", "目标转化成本", "实际转化成本", "闭环电商7日购买ROI", "广告主ID/名称", "计划ID", "现金预算使用率"],
+        "no": []
+      }
+    }
+  ],
+  "weeklyReports": [
+    {
+      "name": "运营周报（主看板）",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=44409238&shortcutId=14826894&projectId=4",
+      "ids": "analysisId=44409238 / shortcutId=14826894",
+      "note": "字段：竞价运营消耗/CTR/视频占比/简单投流水（含环比）"
+    },
+    {
+      "name": "加速包周报",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=44566353&shortcutId=14832999&projectId=4",
+      "ids": "analysisId=44566353 / shortcutId=14832999",
+      "note": "字段：日均加速包消耗/加速包渗透率（含环比）"
+    },
+    {
+      "name": "简单投渗透周报",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=42630517&shortcutId=14833321&projectId=4",
+      "ids": "analysisId=42630517 / shortcutId=14833321",
+      "note": "字段：简单投流水渗透/加速包渗透率（含环比）"
+    }
+  ],
+  "clientsTabs": [
+    {
+      "name": "自然线索直播（开播/观播/留资）",
+      "dashboardId": "37399",
+      "pageId": "page_FHc1X9Pksi",
+      "url": "https://redbi.devops.xiaohongshu.com/dashboard/list?projectId=4&dashboardId=37399&pageId=page_FHc1X9Pksi"
+    },
+    {
+      "name": "投广线索直播（运营流水/留资成本）",
+      "dashboardId": "37399",
+      "pageId": "page_LgLFwRmYDe",
+      "url": "https://redbi.devops.xiaohongshu.com/dashboard/list?projectId=4&dashboardId=37399&pageId=page_LgLFwRmYDe"
+    },
+    {
+      "name": "升维/加速包/简单投渗透（首页）",
+      "dashboardId": "37399",
+      "pageId": "—",
+      "url": "https://redbi.devops.xiaohongshu.com/dashboard/list?projectId=4&dashboardId=37399"
+    }
+  ],
+  "accumulated": [
+    {
+      "scene": "布克智成教育·消耗概览（客资收集）",
+      "url": "https://redbi.devops.xiaohongshu.com/analysis/edit?analysisId=44335900&shortcutId=14844454&projectId=4",
+      "ids": "44335900 / 14844454",
+      "fields": "广告主名称、营销目的细分、消耗",
+      "date": "2026-04-03"
+    }
+  ]
+}
